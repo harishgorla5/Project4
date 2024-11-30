@@ -1,5 +1,5 @@
 # Use the official Tomcat image from Docker Hub
-FROM tomcat:9-jdk11-openjdk-slim
+FROM tomcat:9-jdk11
 
 # Set the maintainer label (optional)
 LABEL maintainer="hintechnologies.ittrainings@gmail.com"

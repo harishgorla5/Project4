@@ -1,18 +1,11 @@
 # Use the official Tomcat image from Docker Hub
-FROM tomcat:9-jdk11
+FROM tomcat:latest
 
-# Set the maintainer label (optional)
-LABEL maintainer="hintechnologies.ittrainings@gmail.com"
+# Copy your WAR file(s) to the Tomcat webapps directory
+# Replace `your-webapp.war` with the actual WAR file name or use a folder with multiple WAR files
+COPY ./webapps/*.war /usr/local/tomcat/webapps/
 
-# Set environment variables (optional)
-ENV CATALINA_HOME /usr/local/tomcat
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
-
-# Copy your custom web application(s) to the Tomcat webapps folder (optional)
-# Make sure you have your .war files in the 'webapps' folder in the same directory as your Dockerfile
-COPY *.war /usr/local/tomcat/webapps/
-
-# Expose Tomcat's default port (8080) to the outside world
+# Expose port 8080 for Tomcat (default HTTP port)
 EXPOSE 8080
 
 # Run Tomcat when the container starts

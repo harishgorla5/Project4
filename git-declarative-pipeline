@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Dev Repo') {
+            steps {
+                script {
+                    echo "Cloning the repository from Git..."
+                    // Explicitly specify the branch to clone
+                    git url: 'https://github.com/harishgorla5/car-booking.git', branch: 'dev'
+                }
+            }
+        }
+
+        stage('Build Code') {
+            steps {
+                script {
+                    echo "Building the project with Maven..."
+                    sh 'mvn clean install'
+                }
+            }
+        }
+    }
+}
+#end of the script

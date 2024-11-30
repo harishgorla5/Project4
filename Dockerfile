@@ -10,7 +10,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
 
 # Copy your custom web application(s) to the Tomcat webapps folder (optional)
 # Make sure you have your .war files in the 'webapps' folder in the same directory as your Dockerfile
-COPY ./webapps/*.war /usr/local/tomcat/webapps/
+COPY /var/lib/jenkins/workspace/Dev/taxi-booking/target/*.war /usr/local/tomcat/webapps/
 
 # Expose Tomcat's default port (8080) to the outside world
 EXPOSE 8080

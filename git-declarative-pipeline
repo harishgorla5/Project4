@@ -2,13 +2,9 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone Dev Repo') {
+        stage('Clone Code Repository') {
             steps {
-                script {
-                    echo "Cloning the repository from Git..."
-                    // Explicitly specify the branch to clone
-                    git url: 'https://github.com/harishgorla5/car-booking.git', branch: 'dev'
-                }
+                git branch: 'dev', url: 'https://github.com/harishgorla5/car-booking.git'
             }
         }
 
@@ -20,6 +16,26 @@ pipeline {
                 }
             }
         }
+
+        stage('Build Image') {
+            steps {
+                script {
+                    // Clone Project4 repository
+                    dir('/var/lib/jenkins/workspace/Project4') {
+                        git branch: 'project4', url: 'https://github.com/harishgorla5/Project4.git'
+                    }
+
+                    // Copy the WAR file from the build location to the Project4 directory (Docker context)
+                    sh 'cp /var/lib/jenkins/workspace/Dev/taxi-booking/target/*.war /var/lib/jenkins/workspace/Project4/'
+
+                    // Build the Docker image
+                    dir('/var/lib/jenkins/workspace/Project4') {
+                        sh '''
+                            docker build -t car-booking-image -f Dockerfile .
+                        '''
+                    }
+                }
+            }
+        }
     }
 }
-#end of the script

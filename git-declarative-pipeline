@@ -8,21 +8,21 @@ pipeline {
     }
 
     stages {
-        stage('Download Code from GitHub (taxi-booking)') {
+        stage('Download Code') {
             steps {
                 echo "Cloning taxi-booking repository from GitHub..."
                 git branch: 'dev', url: 'https://github.com/harishgorla5/car-booking.git'
             }
         }
 
-        stage('Build Code (taxi-booking)') {
+        stage('Build Code') {
             steps {
                 echo "Building the taxi-booking project with Maven..."
                 sh 'mvn clean install'
             }
         }
 
-        stage('Prepare and Build Docker Image') {
+        stage('Build Image') {
             steps {
                 echo "Cloning Project4 repository, copying .war file, and building Docker image..."
 
@@ -48,7 +48,7 @@ pipeline {
             }
         }
 
-        stage('Push Image to Docker Hub') {
+        stage('Push Docker Hub') {
             steps {
                 echo "Pushing Docker image to Docker Hub..."
 

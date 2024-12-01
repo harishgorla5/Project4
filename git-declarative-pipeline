@@ -1,40 +1,72 @@
 pipeline {
     agent any
 
+    environment {
+        // Start versioning at 4.0 and increment with each build
+        BASE_VERSION = 4.0
+        VERSION_TAG = "v${BASE_VERSION + BUILD_NUMBER - 1}" // Increment version with each build
+    }
+
     stages {
-        stage('Clone Code Repository') {
+        stage('Download Code from GitHub (taxi-booking)') {
             steps {
+                echo "Cloning taxi-booking repository from GitHub..."
                 git branch: 'dev', url: 'https://github.com/harishgorla5/car-booking.git'
             }
         }
 
-        stage('Build Code') {
+        stage('Build Code (taxi-booking)') {
             steps {
+                echo "Building the taxi-booking project with Maven..."
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Prepare and Build Docker Image') {
+            steps {
+                echo "Cloning Project4 repository, copying .war file, and building Docker image..."
+
+                // Clone Project4 repository
+                dir('Project4') {
+                    git branch: 'project4', url: 'https://github.com/harishgorla5/Project4.git'
+                }
+
+                // Copy the .war file from taxi-booking to Project4 directory
+                sh 'cp /var/lib/jenkins/workspace/Dev/taxi-booking/target/cabbooking.war ${WORKSPACE}/Project4/'
+
+                // Delete all old Docker images locally
+                sh '''
+                docker images -q | xargs -I {} docker rmi -f {} || true
+                '''
+
+                // Build Docker image with latest tag and versioned tag
                 script {
-                    echo "Building the project with Maven..."
-                    sh 'mvn clean install'
+                    // Build Docker image and tag it with latest and version
+                    docker.build("harishgorla5/project4:latest", "-f ${WORKSPACE}/Project4/Dockerfile ${WORKSPACE}/Project4")
+                    docker.build("harishgorla5/project4:${VERSION_TAG}", "-f ${WORKSPACE}/Project4/Dockerfile ${WORKSPACE}/Project4")
                 }
             }
         }
 
-        stage('Build Image') {
+        stage('Push Image to Docker Hub') {
             steps {
-                script {
-                    // Clone Project4 repository
-                    dir('/var/lib/jenkins/workspace/Project4') {
-                        git branch: 'project4', url: 'https://github.com/harishgorla5/Project4.git'
-                    }
+                echo "Pushing Docker image to Docker Hub..."
 
-                    // Copy the WAR file from the build location to the Project4 directory (Docker context)
-                    sh 'cp /var/lib/jenkins/workspace/Dev/taxi-booking/target/*.war /var/lib/jenkins/workspace/Project4/'
-
-                    // Build the Docker image
-                    dir('/var/lib/jenkins/workspace/Project4') {
-                        sh '''
-                            docker build -t car-booking-image -f Dockerfile .
-                        '''
-                    }
+                // Login to Docker Hub using Secret Text credential (for password)
+                withCredentials([string(credentialsId: 'project4', variable: 'DOCKER_PASSWORD')]) {
+                    // Use Docker Hub username and password stored in the secret text
+                    sh 'echo $DOCKER_PASSWORD | docker login -u harishgorla5 --password-stdin'
                 }
+
+                // Push both the latest and versioned image to Docker Hub
+                sh '''
+                docker push harishgorla5/project4:latest
+                docker push harishgorla5/project4:${VERSION_TAG}
+                '''
+				// Delete all Docker images locally
+                sh '''
+                docker images -q | xargs -I {} docker rmi -f {} || true
+                '''
             }
         }
     }

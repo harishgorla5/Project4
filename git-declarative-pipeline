@@ -32,7 +32,7 @@ pipeline {
                 }
 
                 // Copy the .war file from taxi-booking to Project4 directory
-                sh 'cp /var/lib/jenkins/workspace/Dev/taxi-booking/target/cabbooking.war ${WORKSPACE}/Project4/'
+                sh 'cp /var/lib/jenkins/workspace/dev-cab-booking/taxi-booking/target/cabbooking.war ${WORKSPACE}/Project4/'
 
                 // Delete all old Docker images locally
                 sh '''

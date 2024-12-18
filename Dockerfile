@@ -9,4 +9,4 @@ WORKDIR /usr/local/tomcat/webapps/
 COPY *.war .
 
 # Expose port 8080 for Tomcat (default HTTP port)
-EXPOSE 8080
+EXPOSE 9004
